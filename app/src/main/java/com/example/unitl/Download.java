@@ -2,6 +2,8 @@ package com.example.unitl;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
+import android.media.MediaScannerConnection;
 import android.util.Log;
 
 import java.io.File;
@@ -20,11 +22,14 @@ public class Download {
     public String fileName;
     //网络地址
     public String url;
+    //context
+    public  Context context;
 
-    public Download(String path, String fileName, String url) {
+    public Download(String path, String fileName, String url,Context context) {
         this.path = path;
         this.fileName = fileName;
         this.url = url;
+        this.context=context;
     }
 
     public void getDate() throws IOException {
@@ -43,7 +48,7 @@ public class Download {
         //获取到二进制流
         input = response.body().byteStream();
         //给文件一个路径和名字
-        file = new File(path + fileName );
+        file = new File(path + fileName +".mp3");
         //放进去
         output = new FileOutputStream(file);
 
@@ -54,9 +59,19 @@ public class Download {
         }
         input.close();
         output.close();
-//        output.flush();
+
+        //媒体库更新，坑死我了
+        scanFile(context,path+fileName+".mp3");
 
         Log.e(TAG, "没有意外的话是存完了--getDate: "+ path + fileName + ".mp3");
+    }
+
+    public static void scanFile(Context context, String filePath) {
+        try {
+            MediaScannerConnection.scanFile(context, new String[]{filePath}, null,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

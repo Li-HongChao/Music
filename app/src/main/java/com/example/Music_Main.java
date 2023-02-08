@@ -45,7 +45,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private ImageView playMusic;
 
     // 要申请的权限
-    private final String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.INTERNET};
+    private final String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET};
     //播放按钮当前状态
     public boolean playStatus = true;
     //音乐信息
@@ -87,9 +87,11 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
         playMusic.setOnClickListener(this);
         search.setOnClickListener(this);
         topList.setOnClickListener(this);
+        seekBar.setEnabled(true);
+
         setStatusBar();
-        setList();
         new GetTime().start();
+        setList();
     }
 
     /**
@@ -172,6 +174,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
                 }
                 break;
             case R.id.main_play:
+                Log.e(TAG, "onClick: "+playStatus );
                 if (playStatus) {
                     stop();
                     break;
@@ -180,7 +183,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
                     break;
                 }
             case R.id.main_search:
-                startActivity(new Intent(Music_Main.this,Music_search.class));
+                startActivity(new Intent(Music_Main.this, Music_search.class));
                 break;
         }
     }
@@ -198,15 +201,8 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
 
 
         //检测点击的位置
-        adapter.setOnClickItem((v, i) -> {
-            play(i);
-        });
-        adapter.setOnItemLongClickItem(new Music_Adapter.OnItemLongClickItem() {
-            @Override
-            public boolean onItemLongClickItem(View view, int position) {
-                return false;
-            }
-        });
+        adapter.setOnClickItem((v, i) -> play(i));
+        adapter.setOnItemLongClickItem((view, position) -> false);
     }
 
     /**
@@ -217,10 +213,11 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private void play(int location) {
         //记录当前播放位置
         playLocation = location;
-        //更新歌曲状态
+        //更新状态
         musicName.setText(musicMsg.get(location).getFileName());
         musicSinger.setText(musicMsg.get(location).getSinger());
         playMusic.setImageResource(R.mipmap.stop);
+        playStatus=true;
         //开始播放
         MediaUtils.playSound(musicMsg.get(location).getFileUrl(), mediaPlayer -> {
         });
@@ -235,7 +232,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private void stop() {
         MediaUtils.pause();
         playMusic.setImageResource(R.mipmap.play);
-        if (playStatus) playStatus= false;
+        if (playStatus) playStatus = false;
     }
 
     /**
@@ -244,7 +241,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private void goOn() {
         MediaUtils.resume();
         playMusic.setImageResource(R.mipmap.stop);
-        if (!playStatus) playStatus= true;
+        if (!playStatus) playStatus = true;
     }
 
     /**
@@ -281,6 +278,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
      * 进度条更新方法
      */
     private void playInProgress() {
+        seekBar.setEnabled(true);
         seekBar.setProgress(MediaUtils.position());
         if (seekBar.getProgress() >= MediaUtils.size() - 200) {
             if (playLocation >= musicMsg.size() - 1) {
@@ -312,7 +310,8 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     @Override
     protected void onRestart() {
         super.onRestart();
-        musicMsg= AudioUtils.getAllSongs(Music_Main.this);
+        musicMsg=AudioUtils.getAllSongs(Music_Main.this);
+        adapter.setList(musicMsg);
         adapter.notifyDataSetChanged();
     }
 }

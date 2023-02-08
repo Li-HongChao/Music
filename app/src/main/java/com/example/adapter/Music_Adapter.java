@@ -22,6 +22,10 @@ public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     List<Music> list;
     OnClickItem onClickItem;
 
+    public void setList(List<Music> list) {
+        this.list = list;
+    }
+
     public void setOnItemLongClickItem(OnItemLongClickItem onItemLongClickItem) {
         this.onItemLongClickItem = onItemLongClickItem;
     }
@@ -34,7 +38,7 @@ public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     }
 
     public Music_Adapter(List<Music> list) {
-        Log.e(TAG,"List: "+list );
+        Log.e(TAG, "List: " + list);
         this.list = list;
     }
 
@@ -57,14 +61,16 @@ public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull views holder, @SuppressLint("RecyclerView") int position) {
-        Log.e(TAG, "onBindViewHolder: " + list);
-        if (list.get(position).getFileUrl().isEmpty()){
+        Log.e(TAG, "onBindViewHolder: +" + list.get(position).getFileName() + ":" + list.get(position).getFileUrl());
+        //判断歌曲是否可用
+        if (list.get(position).getFileUrl().isEmpty()) {
             holder.itemLayoutMusiclist.setBackgroundResource(R.color.unEnable);
+        } else {
+            holder.itemLayoutMusiclist.setBackgroundResource(R.drawable.list_bg);
         }
+
         holder.nameTvMusiclist.setText(list.get(position).getFileName());
-        if (list.get(position).getDuration() != null) {
-            holder.timeTvMusiclist.setText(list.get(position).getDuration());
-        }
+        holder.timeTvMusiclist.setText(list.get(position).getDuration());
         holder.singerTvMusiclist.setText(list.get(position).getSinger() + "\t|\t" + list.get(position).getAlbum());
         holder.orderTvMusicList.setText(String.valueOf(position + 1));
         holder.itemLayoutMusiclist.setOnClickListener(view -> onClickItem.onClickItem(view, position));

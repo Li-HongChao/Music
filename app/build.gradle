@@ -35,6 +35,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
+    //太坑了，原来Android不支持播放动图
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.6'
+
 
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'

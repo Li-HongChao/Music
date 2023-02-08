@@ -28,10 +28,11 @@
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:fontFamily="sans-serif-black"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-smallcaps"
             android:gravity="bottom"
             android:letterSpacing="0.2"
-            android:text="大雷音寺"
+            android:text="Music"
             android:textColor="@color/black"
             android:textFontWeight="6"
             android:textSize="20dp" />

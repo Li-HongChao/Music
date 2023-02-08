@@ -9,28 +9,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.example.adapter.Music_Adapter;
 import com.example.entity.Music;
-import com.example.unitl.AudioUtils;
 import com.example.unitl.Download;
 import com.example.unitl.MediaUtils;
 import com.example.unitl.StatusBarUtils;
 import com.example.unitl.WebUnits;
-
-import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,11 +32,12 @@ import java.util.List;
 
 public class Music_search extends AppCompatActivity {
 
-    private EditText editText;
-    private ImageView imageView;
+    private EditText searchEt;
+    private ImageView searchImg;
     private List<Music> allSongs;
     private Music_Adapter adapter;
     public int positions;
+    private ImageView searchLoad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +47,20 @@ public class Music_search extends AppCompatActivity {
     }
 
     private void setInit() {
-        editText = findViewById(R.id.search_et);
-        imageView = findViewById(R.id.search_img);
-
-        editText.requestFocus();
+        searchEt = findViewById(R.id.search_et);
+        searchImg = findViewById(R.id.search_img);
+        searchLoad = findViewById(R.id.search_load);
+        searchEt.requestFocus();
 
         setStatusBar();
 
-        imageView.setOnClickListener(new View.OnClickListener() {
+        searchImg.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
                 try {
+                    searchLoad.setVisibility(View.VISIBLE);
+
                     new GetMsg().start();
                     allSongs.clear();
                     adapter.notifyDataSetChanged();
@@ -83,6 +80,7 @@ public class Music_search extends AppCompatActivity {
             super.handleMessage(msg);
             if (msg.what == 1) {
                 try {
+                    searchLoad.setVisibility(View.INVISIBLE);
                     setList();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -95,7 +93,7 @@ public class Music_search extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                allSongs = WebUnits.getUrl(editText.getText().toString().trim());
+                allSongs = WebUnits.getUrl(searchEt.getText().toString().trim());
                 Message msg = new Message();
                 msg.what = 1;
                 handler.sendMessage(msg);
@@ -105,14 +103,15 @@ public class Music_search extends AppCompatActivity {
         }
     }
 
-    class Downloads extends Thread{
+    class Downloads extends Thread {
         @Override
         public void run() {
             try {
-                new Download(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString()+ File.separatorChar,
+                new Download(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString() + File.separatorChar,
                         allSongs.get(positions).getFileName(),
-                        allSongs.get(positions).getFileUrl()).getDate();
-                Log.e(TAG, "run: 发过去了，就不知道存没存上" );
+                        allSongs.get(positions).getFileUrl(),
+                        Music_search.this).getDate();
+                Log.e(TAG, "run: 发过去了，就不知道存没存上");
                 Message msg = new Message();
                 msg.what = 2;
                 handler.sendMessage(msg);
@@ -130,14 +129,19 @@ public class Music_search extends AppCompatActivity {
         musicList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         musicList.setAdapter(adapter);
         //检测点击的位置
-        adapter.setOnClickItem((v, i) -> MediaUtils.playSound(allSongs.get(i).getFileUrl(), mediaPlayer -> {
-        }));
+        adapter.setOnClickItem(new Music_Adapter.OnClickItem() {
+            @Override
+            public void onClickItem(View v, int i) {
+                Log.e(TAG, "setList: "+ allSongs.get(i).getFileUrl());
+                MediaUtils.playSound(allSongs.get(i).getFileUrl(), mediaPlayer -> {});
+            }
+        });
         adapter.setOnItemLongClickItem((view, position) -> {
             positions = position;
 
             AlertDialog alertDialog2 = new AlertDialog.Builder(Music_search.this)
                     .setTitle("\t是否下载?")
-                    .setMessage("\n"+allSongs.get(position).getFileName())
+                    .setMessage("\n" + allSongs.get(position).getFileName())
                     .setIcon(R.mipmap.ic_launcher)
                     .setPositiveButton("取消", (dialogInterface, i) -> {
 
