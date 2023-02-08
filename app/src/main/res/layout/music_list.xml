@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginEnd="5dp"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/order_tv_musiclist"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="1"
+        android:singleLine="true"
+        android:background="#6FE1E1E1"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:paddingHorizontal="5dp"/>
+
+    <RelativeLayout
+        android:id="@+id/item_layout_musiclist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/list_bg">
+
+        <TextView
+            android:id="@+id/name_tv_musiclist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:paddingTop="5dp"
+            android:singleLine="true"
+            android:text="清明雨上"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:typeface="sans" />
+
+        <TextView
+            android:id="@+id/singer_tv_musiclist"
+            android:layout_width="200dp"
+            android:singleLine="true"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/name_tv_musiclist"
+            android:layout_alignStart="@+id/name_tv_musiclist"
+            android:layout_marginStart="2dp"
+            android:text="许嵩 | 未知专辑"
+            android:layout_marginBottom="5dp"
+            />
+
+        <TextView
+            android:id="@+id/time_tv_musiclist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/singer_tv_musiclist"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="15dp"
+            android:text="时长：03:04" />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

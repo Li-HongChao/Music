@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/灰白"
+    tools:context=".Music_Main">
+
+    <!--头部-->
+    <RelativeLayout
+        android:id="@+id/main_layout_top"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:paddingTop="25dp"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/main_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/search" />
+
+        <TextView
+            android:id="@+id/main_name"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="sans-serif-black"
+            android:gravity="bottom"
+            android:letterSpacing="0.2"
+            android:text="大雷音寺"
+            android:textColor="@color/black"
+            android:textFontWeight="6"
+            android:textSize="20dp" />
+
+        <ImageView
+            android:id="@+id/main_list_top"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:src="@mipmap/list_cb" />
+    </RelativeLayout>
+
+    <!--音乐列表-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/main_music_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/seekBar"
+        android:layout_below="@+id/main_layout_top"
+        android:scrollbars="none" >
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/main_layout_bottom"
+        android:background="@drawable/top_shadow"
+        />
+
+    <!--底部-->
+    <RelativeLayout
+        android:id="@+id/main_layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/top_shadow">
+        <!--状态区-->
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true">
+
+            <ImageView
+                android:id="@+id/main_music_ico"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="10dp"
+                android:src="@mipmap/music" />
+
+            <TextView
+                android:id="@+id/main_music_name"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/main_music_ico"
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@+id/main_music_ico"
+                android:fontFamily="sans-serif-black"
+                android:singleLine="true"
+                android:text="未知歌曲"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/main_music_singer"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/main_music_ico"
+                android:layout_marginStart="3dp"
+                android:layout_marginBottom="12dp"
+                android:layout_toEndOf="@+id/main_music_ico"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.1"
+                android:text="未知歌曲"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
+        </RelativeLayout>
+
+        <!--控制区-->
+        <RelativeLayout
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/main_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:src="@mipmap/up" />
+
+            <ImageView
+                android:id="@+id/main_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:layout_toEndOf="@+id/main_up"
+                android:src="@mipmap/play" />
+
+            <ImageView
+                android:id="@+id/main_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/main_play"
+                android:src="@mipmap/next" />
+
+            <ImageView
+                android:id="@+id/main_list_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="18dp"
+                android:src="@mipmap/list_music" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
