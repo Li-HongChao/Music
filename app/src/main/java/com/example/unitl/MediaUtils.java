@@ -5,7 +5,6 @@ import java.io.IOException;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
 
 public class MediaUtils {
     private static MediaPlayer mPlayer;
@@ -20,12 +19,9 @@ public class MediaUtils {
         }
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mPlayer.setOnCompletionListener(listener);
-        mPlayer.setOnErrorListener(new OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                mPlayer.reset();
-                return false;
-            }
+        mPlayer.setOnErrorListener((mp, what, extra) -> {
+            mPlayer.reset();
+            return false;
         });
         try {
             mPlayer.setDataSource(filePath);

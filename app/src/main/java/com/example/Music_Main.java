@@ -54,6 +54,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     public int playLocation = -1;
     //进度条
     public SeekBar seekBar;
+    private Music_Adapter adapter;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,9 +174,14 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
             case R.id.main_play:
                 if (playStatus) {
                     stop();
+                    break;
                 } else {
                     goOn();
+                    break;
                 }
+            case R.id.main_search:
+                startActivity(new Intent(Music_Main.this,Music_search.class));
+                break;
         }
     }
 
@@ -186,14 +192,20 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private void setList() {
         RecyclerView musicList = findViewById(R.id.main_music_list);
         musicMsg = AudioUtils.getAllSongs(Music_Main.this);
-        Music_Adapter adapter = new Music_Adapter(musicMsg);
+        adapter = new Music_Adapter(musicMsg);
         musicList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         musicList.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+
 
         //检测点击的位置
         adapter.setOnClickItem((v, i) -> {
             play(i);
+        });
+        adapter.setOnItemLongClickItem(new Music_Adapter.OnItemLongClickItem() {
+            @Override
+            public boolean onItemLongClickItem(View view, int position) {
+                return false;
+            }
         });
     }
 
@@ -223,7 +235,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private void stop() {
         MediaUtils.pause();
         playMusic.setImageResource(R.mipmap.play);
-        playStatus = false;
+        if (playStatus) playStatus= false;
     }
 
     /**
@@ -232,7 +244,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private void goOn() {
         MediaUtils.resume();
         playMusic.setImageResource(R.mipmap.stop);
-        playStatus = true;
+        if (!playStatus) playStatus= true;
     }
 
     /**
@@ -294,5 +306,13 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
                 MediaUtils.seek(seekBar.getProgress());
             }
         });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        musicMsg= AudioUtils.getAllSongs(Music_Main.this);
+        adapter.notifyDataSetChanged();
     }
 }

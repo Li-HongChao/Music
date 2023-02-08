@@ -37,6 +37,7 @@ public class AudioUtils {
             music.setFileName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));
             // 歌曲名
             music.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+            Log.e(TAG, "getAllSongs: "+cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)) );
             // 时长
             music.setDuration(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)));
             // 歌手名
@@ -61,9 +62,9 @@ public class AudioUtils {
                 music.setFileUrl(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
             }
             //排除过小的音频文件
-            if (cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)) >= 30000) {
+//            if (cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)) >= 30000) {
                 musics.add(music);
-            }
+//            }
         }
         //关闭游标
         cursor.close();

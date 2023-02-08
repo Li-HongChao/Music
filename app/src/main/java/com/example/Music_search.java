@@ -3,12 +3,15 @@ package com.example;
 import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -22,12 +25,14 @@ import android.widget.Toast;
 import com.example.adapter.Music_Adapter;
 import com.example.entity.Music;
 import com.example.unitl.AudioUtils;
+import com.example.unitl.Download;
 import com.example.unitl.MediaUtils;
 import com.example.unitl.StatusBarUtils;
 import com.example.unitl.WebUnits;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -37,6 +42,7 @@ public class Music_search extends AppCompatActivity {
     private ImageView imageView;
     private List<Music> allSongs;
     private Music_Adapter adapter;
+    public int positions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +54,8 @@ public class Music_search extends AppCompatActivity {
     private void setInit() {
         editText = findViewById(R.id.search_et);
         imageView = findViewById(R.id.search_img);
+
+        editText.requestFocus();
 
         setStatusBar();
 
@@ -97,6 +105,23 @@ public class Music_search extends AppCompatActivity {
         }
     }
 
+    class Downloads extends Thread{
+        @Override
+        public void run() {
+            try {
+                new Download(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString()+ File.separatorChar,
+                        allSongs.get(positions).getFileName(),
+                        allSongs.get(positions).getFileUrl()).getDate();
+                Log.e(TAG, "run: 发过去了，就不知道存没存上" );
+                Message msg = new Message();
+                msg.what = 2;
+                handler.sendMessage(msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     //填充数据
     @SuppressLint("NotifyDataSetChanged")
     private void setList() {
@@ -107,12 +132,22 @@ public class Music_search extends AppCompatActivity {
         //检测点击的位置
         adapter.setOnClickItem((v, i) -> MediaUtils.playSound(allSongs.get(i).getFileUrl(), mediaPlayer -> {
         }));
-        adapter.setOnItemLongClickItem(new Music_Adapter.OnItemLongClickItem() {
-            @Override
-            public boolean onItemLongClickItem(View view, int position) {
-                Toast.makeText(Music_search.this, "当前长按对象为："+allSongs.get(position).getFileName(), Toast.LENGTH_SHORT).show();
-                return true;
-            }
+        adapter.setOnItemLongClickItem((view, position) -> {
+            positions = position;
+
+            AlertDialog alertDialog2 = new AlertDialog.Builder(Music_search.this)
+                    .setTitle("\t是否下载?")
+                    .setMessage("\n"+allSongs.get(position).getFileName())
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setPositiveButton("取消", (dialogInterface, i) -> {
+
+                    })
+                    .setNeutralButton("确定", (dialogInterface, i) -> {
+                        new Downloads().start();
+                    })
+                    .create();
+            alertDialog2.show();
+            return true;
         });
     }
 
