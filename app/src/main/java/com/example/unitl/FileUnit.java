@@ -22,11 +22,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class FileUnit {
-    //文件路径
+    //保存时文件路径
     public String path;
     //文件名
     public String fileName;
-    //网络地址
+    //网络地址||读取时的绝对路径
     public String url;
     //context
     public Context context;
@@ -97,13 +97,6 @@ public class FileUnit {
         } else {
             Log.e(TAG, "False  deleteDate: " + url);
             Toast.makeText(context, "删除失败", Toast.LENGTH_SHORT).show();
-            if (Objects.equals(url.substring(url.indexOf('.') + 1), "flac")) {
-                AlertDialog alertDialog2 = new AlertDialog.Builder(context)
-                        .setMessage("\n" + fileName + "-----" + "删除失败(flac文件为无损音质的特殊文件，需手动删除！)")
-                        .setPositiveButton("确定", (dialogInterface, i) -> {
-                        }).create();
-                alertDialog2.show();
-            }
         }
     }
 
