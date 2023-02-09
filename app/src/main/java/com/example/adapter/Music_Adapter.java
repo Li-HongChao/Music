@@ -61,7 +61,6 @@ public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull views holder, @SuppressLint("RecyclerView") int position) {
-        Log.e(TAG, "onBindViewHolder: +" + list.get(position).getFileName() + ":" + list.get(position).getFileUrl());
         //判断歌曲是否可用
         if (list.get(position).getFileUrl().isEmpty()) {
             holder.itemLayoutMusiclist.setBackgroundResource(R.color.unEnable);

@@ -18,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
@@ -32,10 +33,13 @@ import android.widget.Toast;
 import com.example.adapter.Music_Adapter;
 import com.example.entity.Music;
 import com.example.unitl.AudioUtils;
+import com.example.unitl.FileUnit;
 import com.example.unitl.MediaUtils;
 import com.example.unitl.StatusBarUtils;
 
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 import android.os.Handler;
 
@@ -45,7 +49,11 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private ImageView playMusic;
 
     // 要申请的权限
-    private final String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET};
+    private final String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.INTERNET,
+            Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
     //播放按钮当前状态
     public boolean playStatus = true;
     //音乐信息
@@ -174,7 +182,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
                 }
                 break;
             case R.id.main_play:
-                Log.e(TAG, "onClick: "+playStatus );
+                Log.e(TAG, "onClick: " + playStatus);
                 if (playStatus) {
                     stop();
                     break;
@@ -202,7 +210,41 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
 
         //检测点击的位置
         adapter.setOnClickItem((v, i) -> play(i));
-        adapter.setOnItemLongClickItem((view, position) -> false);
+        adapter.setOnItemLongClickItem(new Music_Adapter.OnItemLongClickItem() {
+            @Override
+            public boolean onItemLongClickItem(View view, int position) {
+                AlertDialog alertDialog2 = new AlertDialog.Builder(Music_Main.this)
+                        .setTitle("是否确认删除?")
+                        .setMessage("歌曲：\""+musicMsg.get(position).getFileName() + "\"\n\n" + "注意：一旦删除无法恢复是否确认删除？")
+                        .setPositiveButton("取消", (dialogInterface, i) -> {
+
+                        })
+                        .setNeutralButton("确定", (dialogInterface, i) -> {
+                            try {
+                                deleteMusic(position);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        })
+                        .create();
+                alertDialog2.show();
+                return false;
+            }
+        });
+    }
+
+    /**
+     * 删除方法
+     *
+     * @param position 删除文件的位置
+     */
+    private void deleteMusic(int position) {
+        Log.e(TAG, "deleteMusic: " + "已经执行");
+        new FileUnit(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString() + File.separatorChar,
+                musicMsg.get(position).getFileName(),
+                musicMsg.get(position).getFileUrl(),
+                Music_Main.this).deleteDate();
+        refresh();
     }
 
     /**
@@ -217,8 +259,9 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
         musicName.setText(musicMsg.get(location).getFileName());
         musicSinger.setText(musicMsg.get(location).getSinger());
         playMusic.setImageResource(R.mipmap.stop);
-        playStatus=true;
+        playStatus = true;
         //开始播放
+        Log.e(TAG, "play: "+musicMsg.get(location).getFileUrl() );
         MediaUtils.playSound(musicMsg.get(location).getFileUrl(), mediaPlayer -> {
         });
         seekBar.setMax(MediaUtils.size());
@@ -306,12 +349,22 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
         });
     }
 
+    /**
+     * 刷新方法
+     */
     @SuppressLint("NotifyDataSetChanged")
+    public void refresh() {
+        musicMsg = AudioUtils.getAllSongs(Music_Main.this);
+        adapter.setList(musicMsg);
+        adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 来回刷新
+     */
     @Override
     protected void onRestart() {
         super.onRestart();
-        musicMsg=AudioUtils.getAllSongs(Music_Main.this);
-        adapter.setList(musicMsg);
-        adapter.notifyDataSetChanged();
+        refresh();
     }
 }

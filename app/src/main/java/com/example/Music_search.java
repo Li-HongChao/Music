@@ -18,10 +18,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.adapter.Music_Adapter;
 import com.example.entity.Music;
-import com.example.unitl.Download;
+import com.example.unitl.FileUnit;
 import com.example.unitl.MediaUtils;
 import com.example.unitl.StatusBarUtils;
 import com.example.unitl.WebUnits;
@@ -78,14 +79,20 @@ public class Music_search extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            if (msg.what == 1) {
-                try {
-                    searchLoad.setVisibility(View.INVISIBLE);
-                    setList();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            switch (msg.what) {
+                case 1:
+                    try {
+                        searchLoad.setVisibility(View.INVISIBLE);
+                        setList();
+                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                case 2:
+                    Toast.makeText(Music_search.this, "存储完成~", Toast.LENGTH_SHORT).show();
+                    break;
             }
+
         }
     };
 
@@ -107,7 +114,7 @@ public class Music_search extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                new Download(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString() + File.separatorChar,
+                new FileUnit(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString() + File.separatorChar,
                         allSongs.get(positions).getFileName(),
                         allSongs.get(positions).getFileUrl(),
                         Music_search.this).getDate();
@@ -132,17 +139,17 @@ public class Music_search extends AppCompatActivity {
         adapter.setOnClickItem(new Music_Adapter.OnClickItem() {
             @Override
             public void onClickItem(View v, int i) {
-                Log.e(TAG, "setList: "+ allSongs.get(i).getFileUrl());
-                MediaUtils.playSound(allSongs.get(i).getFileUrl(), mediaPlayer -> {});
+                Log.e(TAG, "setList: " + allSongs.get(i).getFileUrl());
+                MediaUtils.playSound(allSongs.get(i).getFileUrl(), mediaPlayer -> {
+                });
             }
         });
         adapter.setOnItemLongClickItem((view, position) -> {
             positions = position;
 
-            AlertDialog alertDialog2 = new AlertDialog.Builder(Music_search.this)
+            AlertDialog alertDialog = new AlertDialog.Builder(Music_search.this)
                     .setTitle("\t是否下载?")
                     .setMessage("\n" + allSongs.get(position).getFileName())
-                    .setIcon(R.mipmap.ic_launcher)
                     .setPositiveButton("取消", (dialogInterface, i) -> {
 
                     })
@@ -150,7 +157,7 @@ public class Music_search extends AppCompatActivity {
                         new Downloads().start();
                     })
                     .create();
-            alertDialog2.show();
+            alertDialog.show();
             return true;
         });
     }

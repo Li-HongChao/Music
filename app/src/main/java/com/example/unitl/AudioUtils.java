@@ -34,11 +34,10 @@ public class AudioUtils {
         //开始遍历游标
         while (cursor.moveToNext()) {
             Music music = new Music();
-            // 文件名
-            music.setFileName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));
             // 歌曲名
-            music.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-            Log.e(TAG, "getAllSongs: "+cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)) );
+            music.setFileName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+            // 文件名
+            music.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));
             // 时长
             music.setDuration(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)));
             // 歌手名
