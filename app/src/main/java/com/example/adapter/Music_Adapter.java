@@ -17,6 +17,7 @@ import com.example.R;
 import com.example.entity.Music;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     List<Music> list;
@@ -61,8 +62,8 @@ public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull views holder, @SuppressLint("RecyclerView") int position) {
-        //判断歌曲是否可用
-        if (list.get(position).getFileUrl().isEmpty()) {
+        //判断歌曲是否可用，是否删除选中
+        if (list.get(position).getFileUrl().isEmpty()||Objects.equals(list.get(position).getType(), "delete")) {
             holder.itemLayoutMusiclist.setBackgroundResource(R.color.unEnable);
         } else {
             holder.itemLayoutMusiclist.setBackgroundResource(R.drawable.list_bg);

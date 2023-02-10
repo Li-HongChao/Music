@@ -3,6 +3,7 @@ package com.example;
 import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -38,11 +39,14 @@ import com.example.unitl.MediaUtils;
 import com.example.unitl.StatusBarUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import android.os.Handler;
 
+@RequiresApi(api = Build.VERSION_CODES.R)
 public class Music_Main extends AppCompatActivity implements View.OnClickListener {
     private TextView musicName;
     private TextView musicSinger;
@@ -52,17 +56,24 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
     private final String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.INTERNET,
             Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.MANAGE_EXTERNAL_STORAGE
     };
     //播放按钮当前状态
     public boolean playStatus = true;
+    //判断当前时多选状态还是一般状态
+    public boolean selectStatus = true;
     //音乐信息
     private List<Music> musicMsg;
+    //被删除的音乐位置
+    private List<Integer> deleteMusics;
     //当前播放位置（在列表中）
     public int playLocation = -1;
     //进度条
     public SeekBar seekBar;
     private Music_Adapter adapter;
+    private ImageView search;
+    private ImageView topList;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,8 +93,8 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
         //初始化UI
         musicName = findViewById(R.id.main_music_name);
         musicSinger = findViewById(R.id.main_music_singer);
-        ImageView search = findViewById(R.id.main_search);
-        ImageView topList = findViewById(R.id.main_list_top);
+        search = findViewById(R.id.main_search);
+        topList = findViewById(R.id.main_list_top);
         ImageView upMusic = findViewById(R.id.main_up);
         ImageView nextMusic = findViewById(R.id.main_next);
         playMusic = findViewById(R.id.main_play);
@@ -96,7 +107,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
         search.setOnClickListener(this);
         topList.setOnClickListener(this);
         seekBar.setEnabled(true);
-
+        deleteMusics = new ArrayList<>();
         setStatusBar();
         new GetTime().start();
         setList();
@@ -130,6 +141,21 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
                 ActivityCompat.requestPermissions(this, permissions, 321);
             }
         }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || Environment.isExternalStorageManager()) {
+            Log.e(TAG, "getUser: 权限已获取");
+        } else {
+            AlertDialog dialog2 = new AlertDialog.Builder(this)
+                    .setTitle("获取文件管理权限")
+                    .setMessage("请在文件管理权限中选择本应用开启权限")
+                    .setPositiveButton("立即开启", (dialog1, which) -> {
+                        // 跳转到应用设置界面
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("取消", (dialog12, which) -> {
+                    }).setCancelable(false).show();
+        }
     }
 
     /**
@@ -162,7 +188,6 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
@@ -185,15 +210,62 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
                 Log.e(TAG, "onClick: " + playStatus);
                 if (playStatus) {
                     stop();
-                    break;
                 } else {
                     goOn();
-                    break;
                 }
-            case R.id.main_search:
-                startActivity(new Intent(Music_Main.this, Music_search.class));
                 break;
+            case R.id.main_search:
+                if (selectStatus) {
+                    startActivity(new Intent(Music_Main.this, Music_search.class));
+                } else {
+                    AlertDialog alertDialog2 = new AlertDialog.Builder(Music_Main.this)
+                            .setTitle("是否确认删除?")
+                            .setMessage("注意：\n一旦删除无法恢复!是否确认删除？")
+                            .setPositiveButton("取消", (dialogInterface, i) -> {
+
+                            })
+                            .setNeutralButton("确定", (dialogInterface, i) -> {
+                                Log.e(TAG, "onClick: "+deleteMusics );
+                                deleteMusics.stream().distinct().collect(Collectors.toList());
+                                for (Integer musicPosition : deleteMusics) {
+                                    deleteMusic(musicPosition);
+                                }
+                                deleteMusics.clear();
+                                refresh();
+                                checksAfter();
+                            })
+                            .create();
+                    alertDialog2.show();
+                }
+                break;
+            case R.id.main_list_top:
+                if (selectStatus) {
+                    checksBefore();
+                } else {
+                    checksAfter();
+                }
+
         }
+    }
+
+    /**
+     * 点击删除后
+     */
+    private void checksAfter() {
+        deleteMusics.clear();
+        selectStatus = true;
+        topList.setImageResource(R.mipmap.list_cb);
+        search.setImageResource(R.mipmap.search);
+        refresh();
+    }
+
+    /**
+     * 点击删除前
+     */
+    private void checksBefore() {
+        selectStatus = false;
+        topList.setImageResource(R.mipmap.remove);
+        search.setImageResource(R.mipmap.ack);
     }
 
     /**
@@ -209,27 +281,35 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
 
 
         //检测点击的位置
-        adapter.setOnClickItem((v, i) -> play(i));
-        adapter.setOnItemLongClickItem(new Music_Adapter.OnItemLongClickItem() {
-            @Override
-            public boolean onItemLongClickItem(View view, int position) {
-                AlertDialog alertDialog2 = new AlertDialog.Builder(Music_Main.this)
+        adapter.setOnClickItem((v, i) -> {
+            if (selectStatus) {
+                play(i);
+            } else {
+                Music music = musicMsg.get(i);
+                music.setType("delete");
+                musicMsg.set(i, music);
+                adapter.notifyDataSetChanged();
+                deleteMusics.add(i);
+            }
+
+        });
+        adapter.setOnItemLongClickItem((view, position) -> {
+            if (selectStatus){
+                AlertDialog alertDialog = new AlertDialog.Builder(Music_Main.this)
                         .setTitle("是否确认删除?")
-                        .setMessage("歌曲：\""+musicMsg.get(position).getFileName() + "\"\n\n" + "注意：一旦删除无法恢复是否确认删除？")
+                        .setMessage("歌曲：\"" + musicMsg.get(position).getFileName() + "\"\n" + "注意：\n一旦删除无法恢复!是否确认删除？")
                         .setPositiveButton("取消", (dialogInterface, i) -> {
 
                         })
                         .setNeutralButton("确定", (dialogInterface, i) -> {
-                            try {
                                 deleteMusic(position);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
                         })
                         .create();
-                alertDialog2.show();
+                alertDialog.show();
+            }else {
                 return false;
             }
+            return false;
         });
     }
 
@@ -239,12 +319,12 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
      * @param position 删除文件的位置
      */
     private void deleteMusic(int position) {
-        Log.e(TAG, "deleteMusic: " + "已经执行");
-        new FileUnit(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString() + File.separatorChar,
-                musicMsg.get(position).getFileName(),
-                musicMsg.get(position).getFileUrl(),
-                Music_Main.this).deleteDate();
-        refresh();
+        if (selectStatus) {
+            FileUnit.deleteDate(this, musicMsg.get(position).getFileUrl());
+            refresh();
+        } else {
+            FileUnit.deleteDate(this, musicMsg.get(position).getFileUrl());
+        }
     }
 
     /**
@@ -261,7 +341,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
         playMusic.setImageResource(R.mipmap.stop);
         playStatus = true;
         //开始播放
-        Log.e(TAG, "play: "+musicMsg.get(location).getFileUrl() );
+        Log.e(TAG, "play: " + musicMsg.get(location).getFileUrl());
         MediaUtils.playSound(musicMsg.get(location).getFileUrl(), mediaPlayer -> {
         });
         seekBar.setMax(MediaUtils.size());
@@ -305,6 +385,7 @@ public class Music_Main extends AppCompatActivity implements View.OnClickListene
                 }
             }
         }
+
     }
 
     Handler handler = new Handler(Looper.getMainLooper()) {

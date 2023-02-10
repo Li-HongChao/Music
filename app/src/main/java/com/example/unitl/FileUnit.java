@@ -22,29 +22,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class FileUnit {
-    //文件路径
-    public String path;
-    //文件名
-    public String fileName;
-    //网络地址
-    public String url;
-    //context
-    public Context context;
-    //Music
-    public String folder = "/MyMusic/";
-
-    //本地使用的file对象
-    private File file;
-
-    public FileUnit(String path, String fileName, String url, Context context) {
-        this.path = path;
-        this.fileName = fileName;
-        this.url = url;
-        this.context = context;
-    }
-
     //下载
-    public void getDate() throws IOException {
+    public static void getDate(String path, String fileName, String url, Context context) throws IOException {
 
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
@@ -55,10 +34,10 @@ public class FileUnit {
 
         byte[] bytes = new byte[1024 * 10];
         int length;
-        String paths = path + folder + fileName + ".mp3";
+        String paths = path + "/MyMusic/" + fileName + ".mp3";
 
         //查看是否有本应用的文件夹
-        file = new File(path + "/" + folder);
+        File file = new File(path + "/" + "/MyMusic/");
         if (!file.exists()) {// 判断目录是否存在
             file.mkdir();
         }
@@ -85,26 +64,20 @@ public class FileUnit {
     }
 
     //删除
-    public void deleteDate() {
-        file = new File(url);
+    public static void deleteDate(Context context ,String path) {
+        File file = new File(path);
         boolean flag = false;
         if (file.isFile() && file.exists()) {
             flag = file.delete();
         }
         if (flag) {
-            Log.e(TAG, "True  deleteDate: " + url);
+            Log.e(TAG, "True  deleteDate: " + path);
             Toast.makeText(context, "删除成功", Toast.LENGTH_SHORT).show();
         } else {
-            Log.e(TAG, "False  deleteDate: " + url);
+            Log.e(TAG, "False  deleteDate: " + path);
             Toast.makeText(context, "删除失败", Toast.LENGTH_SHORT).show();
-            if (Objects.equals(url.substring(url.indexOf('.') + 1), "flac")) {
-                AlertDialog alertDialog2 = new AlertDialog.Builder(context)
-                        .setMessage("\n" + fileName + "-----" + "删除失败(flac文件为无损音质的特殊文件，需手动删除！)")
-                        .setPositiveButton("确定", (dialogInterface, i) -> {
-                        }).create();
-                alertDialog2.show();
-            }
         }
+        Log.e(TAG, "deleteDate: 当前删除文件"+path);
     }
 
     //刷新媒体库
@@ -118,3 +91,14 @@ public class FileUnit {
     }
 
 }
+
+
+/*
+              if (Objects.equals(url.substring(url.indexOf('.') + 1), "flac")) {
+                  AlertDialog alertDialog2 = new AlertDialog.Builder(context)
+                          .setMessage("\n" + fileName + "-----" + "删除失败(flac文件为无损音质的特殊文件，需手动删除！)")
+                          .setPositiveButton("确定", (dialogInterface, i) -> {
+                          }).create();
+                  alertDialog2.show();
+              }
+ */

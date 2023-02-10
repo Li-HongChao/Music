@@ -114,10 +114,10 @@ public class Music_search extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                new FileUnit(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString() + File.separatorChar,
+                FileUnit.getDate(Environment.getExternalStoragePublicDirectory(DOWNLOAD_SERVICE).toString() + File.separatorChar,
                         allSongs.get(positions).getFileName(),
                         allSongs.get(positions).getFileUrl(),
-                        Music_search.this).getDate();
+                        Music_search.this);
                 Log.e(TAG, "run: 发过去了，就不知道存没存上");
                 Message msg = new Message();
                 msg.what = 2;
@@ -136,17 +136,19 @@ public class Music_search extends AppCompatActivity {
         musicList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         musicList.setAdapter(adapter);
         //检测点击的位置
-        adapter.setOnClickItem(new Music_Adapter.OnClickItem() {
-            @Override
-            public void onClickItem(View v, int i) {
-                Log.e(TAG, "setList: " + allSongs.get(i).getFileUrl());
+        adapter.setOnClickItem((v, i) -> {
+            Log.e(TAG, "setList: " + allSongs.get(i).getFileUrl());
+            if (!allSongs.get(i).getFileUrl().trim().equals("")){
+                Toast.makeText(Music_search.this, "正在播放"+allSongs.get(i).getFileName(), Toast.LENGTH_SHORT).show();
                 MediaUtils.playSound(allSongs.get(i).getFileUrl(), mediaPlayer -> {
                 });
+            }else {
+                Toast.makeText(Music_search.this, "亲，灰色歌曲不可用的哦~", Toast.LENGTH_SHORT).show();
             }
+
         });
         adapter.setOnItemLongClickItem((view, position) -> {
             positions = position;
-
             AlertDialog alertDialog = new AlertDialog.Builder(Music_search.this)
                     .setTitle("\t是否下载?")
                     .setMessage("\n" + allSongs.get(position).getFileName())
