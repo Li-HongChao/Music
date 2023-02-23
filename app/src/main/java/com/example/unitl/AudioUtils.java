@@ -62,9 +62,9 @@ public class AudioUtils {
                 music.setFileUrl(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
             }
             //排除过小的音频文件
-//            if (cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)) >= 30000) {
+            if (cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)) >= 30000) {
                 musics.add(music);
-//            }
+            }
         }
         //关闭游标
         cursor.close();

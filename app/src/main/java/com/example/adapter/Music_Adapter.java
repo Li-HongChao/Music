@@ -21,7 +21,18 @@ import java.util.Objects;
 
 public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     List<Music> list;
+    //创建回调对象
     OnClickItem onClickItem;
+    OnItemLongClickItem onItemLongClickItem;
+
+    //声明了一个接口，接收点击事件
+    public interface OnClickItem {
+        void onClickItem(View v, int i);
+    }
+
+    public interface OnItemLongClickItem {
+        boolean onItemLongClickItem(View view, int position);
+    }
 
     public void setList(List<Music> list) {
         this.list = list;
@@ -31,9 +42,6 @@ public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
         this.onItemLongClickItem = onItemLongClickItem;
     }
 
-    OnItemLongClickItem onItemLongClickItem;
-
-
     public void setOnClickItem(OnClickItem onClickItem) {
         this.onClickItem = onClickItem;
     }
@@ -41,15 +49,6 @@ public class Music_Adapter extends RecyclerView.Adapter<Music_Adapter.views> {
     public Music_Adapter(List<Music> list) {
         Log.e(TAG, "List: " + list);
         this.list = list;
-    }
-
-    //声明了一个接口，接收点击事件
-    public interface OnClickItem {
-        void onClickItem(View v, int i);
-    }
-
-    public interface OnItemLongClickItem {
-        boolean onItemLongClickItem(View view, int position);
     }
 
     @NonNull

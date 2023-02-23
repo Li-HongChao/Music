@@ -7,53 +7,74 @@
     tools:context=".Music_search">
 
     <RelativeLayout
-        android:layout_marginTop="30dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp">
 
+        <!--搜索框-->
         <LinearLayout
             android:id="@+id/search_top"
-            android:layout_margin="10dp"
-
             android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/radius_shape">
+            android:layout_margin="10dp"
+            android:background="@drawable/history_bg"
+            android:orientation="horizontal">
 
             <EditText
-                android:maxLines="1"
-                android:background="@color/white"
                 android:id="@+id/search_et"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
-                android:layout_weight="8" />
+                android:layout_weight="8"
+                android:background="@color/white"
+                android:maxLines="1" />
 
             <ImageView
                 android:id="@+id/search_img"
-                android:layout_weight="3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
                 android:layout_toEndOf="@+id/search_music"
-                android:src="@mipmap/search"
-                android:layout_marginEnd="10dp"/>
+                android:layout_weight="3"
+                android:src="@mipmap/search" />
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/search_clear_history"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@mipmap/remove"
+            android:layout_below="@+id/search_top"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="20dp"/>
+
+        <!--历史记录-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/history"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/search_clear_history"
+            />
+
+        <!--加载动画,这个是在哪里找的库忘了,反正不是原来有的-->
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/search_load"
-            android:visibility="gone"
-            android:layout_marginTop="100dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/loading"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="100dp"
+            android:src="@drawable/loading"
+            android:visibility="gone"
             tools:ignore="MissingClass" />
+
+        <!--音乐列表-->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/search_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/search_top"/>
+            android:layout_below="@+id/search_top" />
 
     </RelativeLayout>
 
